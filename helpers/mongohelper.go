@@ -3,6 +3,7 @@ package helpers
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
@@ -44,6 +45,21 @@ func MongoAddManyDoc(collection string, doc []interface{}) (f bool) {
 		return
 	}
 	return true
+}
+
+// get many doc from mongo db
+func MongoGetLastOneDoc(collection string, docInp interface{}) (f bool) {
+	f = false
+	client := MongoConn.Database(MongoDb).Collection(collection)
+	// Find the last inserted document
+	findOptions := options.FindOne().
+		SetSort(bson.D{{Key: "time", Value: -1}})
+	if err := client.FindOne(context.TODO(), bson.D{}, findOptions).Decode(docInp); err != nil {
+		Logger.Error("Failed to find one document", zap.Error(err))
+		return
+	}
+	f = true
+	return
 }
 
 // // add doc to mongo db

@@ -1,8 +1,6 @@
 package helpers
 
 import (
-	"fmt"
-
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -33,261 +31,261 @@ func InitRediGo(r string, pwd string) error {
 	}
 }
 
-// insert data in redis list
-func InsertRedisListLPush(key string, val []string) error {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("InsertRedisListLPush", "Redis not connected", er)
-		return er
-	}
-	ar := redis.Args{}.Add(key).AddFlat(val)
-	_, err := rc.Do("LPUSH", ar...)
-	if err != nil {
-		// LogError("InsertRedisListLPush", fmt.Sprintf("cannot insert in redis list key: %s with value: %s", key, val), err)
-		return err
-	}
-	return nil
-}
+// // insert data in redis list
+// func InsertRedisListLPush(key string, val []string) error {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("InsertRedisListLPush", "Redis not connected", er)
+// 		return er
+// 	}
+// 	ar := redis.Args{}.Add(key).AddFlat(val)
+// 	_, err := rc.Do("LPUSH", ar...)
+// 	if err != nil {
+// 		// LogError("InsertRedisListLPush", fmt.Sprintf("cannot insert in redis list key: %s with value: %s", key, val), err)
+// 		return err
+// 	}
+// 	return nil
+// }
 
-// insert data in redis list
-func GetRedisListRPOP(key string, n int) ([][]byte, error) {
-	r := [][]byte{}
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("GetRedisListRPOP", "Redis not connected", er)
-		return r, er
-	}
-	res, err := redis.ByteSlices(rc.Do("RPOP", key, n))
-	if err != nil {
-		// LogError("GetRedisListRPOP", fmt.Sprintf("Cannot get items from redis list key: %s", key), err)
-		return r, err
-	}
-	r = append(r, res...)
-	return r, nil
-}
+// // get data in redis list
+// func GetRedisListRPOP(key string, n int) ([][]byte, error) {
+// 	r := [][]byte{}
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("GetRedisListRPOP", "Redis not connected", er)
+// 		return r, er
+// 	}
+// 	res, err := redis.ByteSlices(rc.Do("RPOP", key, n))
+// 	if err != nil {
+// 		// LogError("GetRedisListRPOP", fmt.Sprintf("Cannot get items from redis list key: %s", key), err)
+// 		return r, err
+// 	}
+// 	r = append(r, res...)
+// 	return r, nil
+// }
 
-// insert data in redis set
-func InsertRedisSet(key string, val string) (bool, error) {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("InsertRedisSet", "Redis not connected", er)
-		return false, er
-	}
-	_, err := rc.Do("SADD", key, val)
-	if err != nil {
-		// LogError("InsertRedisSet", fmt.Sprintf("cannot insert in redis set key: %s with value: %s", key, val), err)
-		return false, err
-	}
-	return true, nil
-}
+// // insert data in redis set
+// func InsertRedisSet(key string, val string) (bool, error) {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("InsertRedisSet", "Redis not connected", er)
+// 		return false, er
+// 	}
+// 	_, err := rc.Do("SADD", key, val)
+// 	if err != nil {
+// 		// LogError("InsertRedisSet", fmt.Sprintf("cannot insert in redis set key: %s with value: %s", key, val), err)
+// 		return false, err
+// 	}
+// 	return true, nil
+// }
 
-// insert data in redis set
-func RemoveSetMember(key string, val string) (bool, error) {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("InsertRedisSet", "Redis not connected", er)
-		return false, er
-	}
-	_, err := rc.Do("SREM", key, val)
-	if err != nil {
-		// LogError("InsertRedisSet", fmt.Sprintf("cannot insert in redis set key: %s with value: %s", key, val), err)
-		return false, err
-	}
-	return true, nil
-}
+// // insert data in redis set
+// func RemoveSetMember(key string, val string) (bool, error) {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("InsertRedisSet", "Redis not connected", er)
+// 		return false, er
+// 	}
+// 	_, err := rc.Do("SREM", key, val)
+// 	if err != nil {
+// 		// LogError("InsertRedisSet", fmt.Sprintf("cannot insert in redis set key: %s with value: %s", key, val), err)
+// 		return false, err
+// 	}
+// 	return true, nil
+// }
 
-// insert data in redis set
-func InsertRedisSetBulk(key string, val []string) (bool, error) {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("InsertRedisSetBulk", "Redis not connected", er)
-		return false, er
-	}
-	ar := redis.Args{}.Add(key).AddFlat(val)
-	_, err := rc.Do("SADD", ar...)
-	if err != nil {
-		// LogError("InsertRedisSetBulk", fmt.Sprintf("cannot insert in redis set key: %s with value: %s", key, val), err)
-		return false, err
-	}
-	return true, nil
-}
+// // insert data in redis set
+// func InsertRedisSetBulk(key string, val []string) (bool, error) {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("InsertRedisSetBulk", "Redis not connected", er)
+// 		return false, er
+// 	}
+// 	ar := redis.Args{}.Add(key).AddFlat(val)
+// 	_, err := rc.Do("SADD", ar...)
+// 	if err != nil {
+// 		// LogError("InsertRedisSetBulk", fmt.Sprintf("cannot insert in redis set key: %s with value: %s", key, val), err)
+// 		return false, err
+// 	}
+// 	return true, nil
+// }
 
-// check if data exists in redis set
-func CheckRedisSetMemeber(key string, val string) (bool, error) {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("CheckRedisSetMemeber", "Redis not connected", er)
-		return false, er
-	}
-	f, err := rc.Do("SISMEMBER", key, val)
-	if err != nil {
-		// LogError("CheckRedisSetMemeber", fmt.Sprintf("cannot check in redis set key: %s with value: %s", key, val), err)
-		return false, err
-	}
-	if f.(int64) < 1 {
-		return false, nil
-	}
-	return true, nil
-}
+// // check if data exists in redis set
+// func CheckRedisSetMemeber(key string, val string) (bool, error) {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("CheckRedisSetMemeber", "Redis not connected", er)
+// 		return false, er
+// 	}
+// 	f, err := rc.Do("SISMEMBER", key, val)
+// 	if err != nil {
+// 		// LogError("CheckRedisSetMemeber", fmt.Sprintf("cannot check in redis set key: %s with value: %s", key, val), err)
+// 		return false, err
+// 	}
+// 	if f.(int64) < 1 {
+// 		return false, nil
+// 	}
+// 	return true, nil
+// }
 
-// delete redis set member
-func DeleteRedisSetMemeber(key string, val string) (bool, error) {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("DeleteRedisSetMemeber", "Redis not connected", er)
-		return false, er
-	}
-	_, err := rc.Do("SREM", key, val)
-	if err != nil {
-		// LogError("DeleteRedisSetMemeber", fmt.Sprintf("cannot delete in redis set key: %s with value: %s", key, val), err)
-		return false, err
-	}
-	return true, nil
-}
+// // delete redis set member
+// func DeleteRedisSetMemeber(key string, val string) (bool, error) {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("DeleteRedisSetMemeber", "Redis not connected", er)
+// 		return false, er
+// 	}
+// 	_, err := rc.Do("SREM", key, val)
+// 	if err != nil {
+// 		// LogError("DeleteRedisSetMemeber", fmt.Sprintf("cannot delete in redis set key: %s with value: %s", key, val), err)
+// 		return false, err
+// 	}
+// 	return true, nil
+// }
 
-// get all redis set member
-func GetAllRedisSetMemeber(key string) ([]string, error) {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("DeleteRedisSetMemeber", "Redis not connected", er)
-		return nil, er
-	}
-	members, err := redis.Strings(rc.Do("SMEMBERS", key))
-	if err != nil {
-		return nil, err
-	}
-	return members, nil
-}
+// // get all redis set member
+// func GetAllRedisSetMemeber(key string) ([]string, error) {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("DeleteRedisSetMemeber", "Redis not connected", er)
+// 		return nil, er
+// 	}
+// 	members, err := redis.Strings(rc.Do("SMEMBERS", key))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return members, nil
+// }
 
-func GetRedisKeyVal(key string) (string, error) {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("GetRedisKeyVal", "Redis not connected", er)
-		return "", er
-	}
-	res, err := redis.String(rc.Do("GET", key))
-	if err != nil {
-		// LogError("GetRedisKeyVal", fmt.Sprintf("cannot get in redis key: %s", key), err)
-		return "", err
-	}
-	return res, nil
-}
+// func GetRedisKeyVal(key string) (string, error) {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("GetRedisKeyVal", "Redis not connected", er)
+// 		return "", er
+// 	}
+// 	res, err := redis.String(rc.Do("GET", key))
+// 	if err != nil {
+// 		// LogError("GetRedisKeyVal", fmt.Sprintf("cannot get in redis key: %s", key), err)
+// 		return "", err
+// 	}
+// 	return res, nil
+// }
 
-func SetRedisKeyVal(key string, val string) error {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("SetRedisKeyVal", "Redis not connected", er)
-		return er
-	}
-	_, err := rc.Do("SET", key, val)
-	if err != nil {
-		// LogError("SetRedisKeyVal", fmt.Sprintf("cannot set in redis key: %s with value: %s", key, val), err)
-		return err
-	}
-	return nil
-}
-func SetKeyExpiry(key string, dur int) error {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("SetRedisKeyVal", "Redis not connected", er)
-		return er
-	}
-	_, err := rc.Do("EXPIRE", key, dur)
-	if err != nil {
-		// LogError("SetRedisKeyVal", fmt.Sprintf("cannot set in redis key: %s with value: %s", key, val), err)
-		return err
-	}
-	return nil
-}
+// func SetRedisKeyVal(key string, val string) error {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("SetRedisKeyVal", "Redis not connected", er)
+// 		return er
+// 	}
+// 	_, err := rc.Do("SET", key, val)
+// 	if err != nil {
+// 		// LogError("SetRedisKeyVal", fmt.Sprintf("cannot set in redis key: %s with value: %s", key, val), err)
+// 		return err
+// 	}
+// 	return nil
+// }
+// func SetKeyExpiry(key string, dur int) error {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("SetRedisKeyVal", "Redis not connected", er)
+// 		return er
+// 	}
+// 	_, err := rc.Do("EXPIRE", key, dur)
+// 	if err != nil {
+// 		// LogError("SetRedisKeyVal", fmt.Sprintf("cannot set in redis key: %s with value: %s", key, val), err)
+// 		return err
+// 	}
+// 	return nil
+// }
 
-func DelRedisKey(key string) error {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("SetRedisKeyVal", "Redis not connected", er)
-		return er
-	}
-	_, err := rc.Do("DEL", key)
-	if err != nil {
-		// LogError("SetRedisKeyVal", fmt.Sprintf("cannot set in redis key: %s with value: %s", key, val), err)
-		return err
-	}
-	return nil
-}
+// func DelRedisKey(key string) error {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("SetRedisKeyVal", "Redis not connected", er)
+// 		return er
+// 	}
+// 	_, err := rc.Do("DEL", key)
+// 	if err != nil {
+// 		// LogError("SetRedisKeyVal", fmt.Sprintf("cannot set in redis key: %s with value: %s", key, val), err)
+// 		return err
+// 	}
+// 	return nil
+// }
 
-// this function round the List member
-func RedisLMove(key string) (res string, err error) {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		// LogError("RoundSetMember", "Redis not connected", er)
-		return "", er
-	}
-	resp, err := redis.String(rc.Do("LMOVE", key, key, "RIGHT", "LEFT"))
-	if err != nil {
-		// LogError("RoundSetMember", fmt.Sprintf("cannot round in redis set key: %s with value: %s", key, val), err)
-		return "", err
-	}
-	return resp, nil
-}
+// // this function round the List member
+// func RedisLMove(key string) (res string, err error) {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		// LogError("RoundSetMember", "Redis not connected", er)
+// 		return "", er
+// 	}
+// 	resp, err := redis.String(rc.Do("LMOVE", key, key, "RIGHT", "LEFT"))
+// 	if err != nil {
+// 		// LogError("RoundSetMember", fmt.Sprintf("cannot round in redis set key: %s with value: %s", key, val), err)
+// 		return "", err
+// 	}
+// 	return resp, nil
+// }
 
-// checks if members of array exists in redis set
-func CheckRedisSetMemebers(key string, val []string) (fd []int, nf []int, err error) {
-	fd = make([]int, 0)
-	nf = make([]int, 0)
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		return fd, nf, er
-	}
-	if err := rc.Send("MULTI"); err != nil {
-		return fd, nf, err
-	}
+// // checks if members of array exists in redis set
+// func CheckRedisSetMemebers(key string, val []string) (fd []int, nf []int, err error) {
+// 	fd = make([]int, 0)
+// 	nf = make([]int, 0)
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		return fd, nf, er
+// 	}
+// 	if err := rc.Send("MULTI"); err != nil {
+// 		return fd, nf, err
+// 	}
 
-	for _, v := range val {
-		if err := rc.Send("SISMEMBER", key, v); err != nil {
-			return fd, nf, err
-		}
-	}
+// 	for _, v := range val {
+// 		if err := rc.Send("SISMEMBER", key, v); err != nil {
+// 			return fd, nf, err
+// 		}
+// 	}
 
-	vals, err := redis.Values(rc.Do("EXEC"))
-	if err != nil {
-		return fd, nf, err
-	}
+// 	vals, err := redis.Values(rc.Do("EXEC"))
+// 	if err != nil {
+// 		return fd, nf, err
+// 	}
 
-	for i, v := range vals {
-		if val, ok := v.(int64); ok {
-			if val == 1 {
-				fd = append(fd, i)
-			} else {
-				nf = append(nf, i)
-			}
-		}
-	}
-	return fd, nf, nil
-}
+// 	for i, v := range vals {
+// 		if val, ok := v.(int64); ok {
+// 			if val == 1 {
+// 				fd = append(fd, i)
+// 			} else {
+// 				nf = append(nf, i)
+// 			}
+// 		}
+// 	}
+// 	return fd, nf, nil
+// }
 
-func ListLpush(key string, val []interface{}) bool {
-	rc := RedigoConn.Get()
-	defer rc.Close()
-	if _, er := rc.Do("PING"); er != nil {
-		return false
-	}
-	_, err := rc.Do("LPUSH", key, val)
-	if err != nil {
-		fmt.Println("error", err)
-		return false
-	}
-	return true
-}
+// func ListLpush(key string, val []interface{}) bool {
+// 	rc := RedigoConn.Get()
+// 	defer rc.Close()
+// 	if _, er := rc.Do("PING"); er != nil {
+// 		return false
+// 	}
+// 	_, err := rc.Do("LPUSH", key, val)
+// 	if err != nil {
+// 		fmt.Println("error", err)
+// 		return false
+// 	}
+// 	return true
+// }
