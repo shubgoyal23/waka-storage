@@ -8,8 +8,8 @@ type ActivityResponse struct {
 }
 
 type Activity struct {
-	Color    *string `json:"color"` // Using pointer to handle null
-	Duration float64 `json:"duration"`
-	Project  string  `json:"project"`
-	Time     float64 `json:"time"` // Unix timestamp with fractional seconds
+	Color    *string `json:"color"`    // Using pointer to handle null
+	Duration float64 `json:"duration"` // in seconds
+	Project  string  `json:"project"`  // name of the project
+	Time     float64 `json:"time"`     // Unix timestamp with fractional seconds
 }
