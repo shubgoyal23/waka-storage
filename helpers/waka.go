@@ -17,7 +17,7 @@ func WakaInit(str string) {
 	apiKey = str
 }
 
-func FetchWakaData(date string) (*models.ActivityResponse, error) {
+func FetchWakaDataActivity(date string) (*models.ActivityResponse, error) {
 	client := &http.Client{}
 	url := fmt.Sprintf("%s/durations?date=%s", wakaBaseURL, date)
 	req, _ := http.NewRequest("GET", url, nil)
@@ -32,6 +32,27 @@ func FetchWakaData(date string) (*models.ActivityResponse, error) {
 	defer resp.Body.Close()
 
 	var result models.ActivityResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func FetchWakaDataHeartbeat(date string) (*models.HeartbeatResponse, error) {
+	client := &http.Client{}
+	url := fmt.Sprintf("%s/heartbeats?date=%s", wakaBaseURL, date)
+	req, _ := http.NewRequest("GET", url, nil)
+
+	auth := base64.StdEncoding.EncodeToString([]byte(apiKey))
+	req.Header.Set("Authorization", "Basic "+auth)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result models.HeartbeatResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}

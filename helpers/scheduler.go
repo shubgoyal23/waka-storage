@@ -33,21 +33,22 @@ func ScheduleWakaDataFetch() {
 	for {
 		if !skip {
 			formated_date := time.Now().Add(-24 * time.Hour).Format("2006-01-02")
-			WakaDataFetch(formated_date)
+			WakaDataFetchActivity(formated_date)
+			WakaDataFetchHeartbeat(formated_date)
 		}
 		skip = false
 		time.Sleep(24 * time.Hour)
 	}
 }
 
-func WakaDataFetch(formated_date string) {
+func WakaDataFetchActivity(formated_date string) {
 	defer func() {
 		if r := recover(); r != nil {
-			Logger.Error("WakaDataFetch Crashed: ", zap.Any("error", r))
+			Logger.Error("WakaDataFetchActivity Crashed: ", zap.Any("error", r))
 		}
 	}()
 
-	data, err := FetchWakaData(formated_date)
+	data, err := FetchWakaDataActivity(formated_date)
 	if err != nil {
 		Logger.Error(fmt.Sprintf("Failed to fetch waka data for date: %s", formated_date), zap.Error(err))
 		return
@@ -57,6 +58,27 @@ func WakaDataFetch(formated_date string) {
 		datainsert = append(datainsert, v)
 	}
 	if !MongoAddManyDoc("daily_logs", datainsert) {
+		Logger.Error(fmt.Sprintf("Failed to insert waka data for date: %s", formated_date))
+	}
+}
+
+func WakaDataFetchHeartbeat(formated_date string) {
+	defer func() {
+		if r := recover(); r != nil {
+			Logger.Error("WakaDataFetchHeartbeat Crashed: ", zap.Any("error", r))
+		}
+	}()
+
+	data, err := FetchWakaDataHeartbeat(formated_date)
+	if err != nil {
+		Logger.Error(fmt.Sprintf("Failed to fetch waka data for date: %s", formated_date), zap.Error(err))
+		return
+	}
+	datainsert := []interface{}{}
+	for _, v := range data.Data {
+		datainsert = append(datainsert, v)
+	}
+	if !MongoAddManyDoc("heartbeats", datainsert) {
 		Logger.Error(fmt.Sprintf("Failed to insert waka data for date: %s", formated_date))
 	}
 }
