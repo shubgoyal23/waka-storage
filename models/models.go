@@ -3,44 +3,44 @@ package models
 import "time"
 
 type ActivityResponse struct {
-	Data     []Activity `json:"data"`
-	End      string     `json:"end"`
-	Start    string     `json:"start"`
-	Timezone string     `json:"timezone"`
+	Data     []Activity `bson:"data" json:"data"`
+	End      string     `bson:"end" json:"end"`
+	Start    string     `bson:"start" json:"start"`
+	Timezone string     `bson:"timezone" json:"timezone"`
 }
 
 type Activity struct {
-	Color    *string `json:"color"`    // Using pointer to handle null
-	Duration float64 `json:"duration"` // in seconds
-	Project  string  `json:"project"`  // name of the project
-	Time     float64 `json:"time"`     // Unix timestamp with fractional seconds
+	Color    *string `bson:"color,omitempty" json:"color,omitempty"` // Using pointer to handle null
+	Duration float64 `bson:"duration" json:"duration"`               // in seconds
+	Project  string  `bson:"project" json:"project"`                 // name of the project
+	Time     float64 `bson:"time" json:"time"`                       // Unix timestamp with fractional seconds
 }
 
 type HeartbeatResponse struct {
-	Data     []WakaHeartbeat `json:"data"`
-	End      string          `json:"end"`
-	Start    string          `json:"start"`
-	Timezone string          `json:"timezone"`
+	Data     []WakaHeartbeat `bson:"data" json:"data"`
+	End      string          `bson:"end" json:"end"`
+	Start    string          `bson:"start" json:"start"`
+	Timezone string          `bson:"timezone" json:"timezone"`
 }
 
 type WakaHeartbeat struct {
 	ID               string    `bson:"_id" json:"id"`
-	Branch           *string   `json:"branch,omitempty"`
-	Category         string    `json:"category"`
-	CreatedAt        time.Time `json:"created_at"`
-	CursorPos        int       `json:"cursorpos"`
-	Dependencies     []string  `json:"dependencies"`
-	Entity           string    `json:"entity"`
-	IsWrite          bool      `json:"is_write"`
-	Language         string    `json:"language"`
-	LineAdditions    *int      `json:"line_additions,omitempty"`
-	LineDeletions    *int      `json:"line_deletions,omitempty"`
-	LineNo           int       `json:"lineno"`
-	Lines            int       `json:"lines"`
-	MachineNameID    string    `json:"machine_name_id"`
-	Project          string    `json:"project"`
-	ProjectRootCount *int      `json:"project_root_count,omitempty"`
-	Time             float64   `json:"time"` // Unix timestamp
-	Type             string    `json:"type"`
-	UserAgentID      string    `json:"user_agent_id"`
+	Branch           *string   `bson:"branch,omitempty" json:"branch,omitempty"`
+	Category         string    `bson:"category" json:"category"`
+	CreatedAt        time.Time `bson:"created_at" json:"created_at"`
+	CursorPos        int       `bson:"cursorpos" json:"cursorpos"`
+	Dependencies     []string  `bson:"dependencies" json:"dependencies"`
+	Entity           string    `bson:"entity" json:"entity"`
+	IsWrite          bool      `bson:"is_write" json:"is_write"`
+	Language         string    `bson:"language" json:"language"`
+	LineAdditions    *int      `bson:"line_additions,omitempty" json:"line_additions,omitempty"`
+	LineDeletions    *int      `bson:"line_deletions,omitempty" json:"line_deletions,omitempty"`
+	LineNo           int       `bson:"lineno" json:"lineno"`
+	Lines            int       `bson:"lines" json:"lines"`
+	MachineNameID    string    `bson:"machine_name_id" json:"machine_name_id"`
+	Project          string    `bson:"project" json:"project"`
+	ProjectRootCount *int      `bson:"project_root_count,omitempty" json:"project_root_count,omitempty"`
+	Time             float64   `bson:"time" json:"time"` // Unix timestamp
+	Type             string    `bson:"type" json:"type"`
+	UserAgentID      string    `bson:"user_agent_id" json:"user_agent_id"`
 }
