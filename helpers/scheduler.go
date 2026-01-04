@@ -51,7 +51,7 @@ func WakaDataFetch() {
 			Logger.Error("WakaDataFetch Crashed: ", zap.Any("error", r))
 		}
 	}()
-	formated_date := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	formated_date := time.Now().Add(-1 * time.Hour).Format("2006-01-02")
 	WakaDataFetchActivity(formated_date)
 	WakaDataFetchHeartbeat(formated_date)
 }
