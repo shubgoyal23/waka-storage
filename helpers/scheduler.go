@@ -52,6 +52,7 @@ func WakaDataFetch() {
 		}
 	}()
 	formated_date := time.Now().Add(-1 * time.Hour).Format("2006-01-02")
+	Logger.Info("WakaDataFetch started", zap.String("date", formated_date), zap.String("time", time.Now().Format("2006-01-02 15:04:05")))
 	WakaDataFetchActivity(formated_date)
 	WakaDataFetchHeartbeat(formated_date)
 }

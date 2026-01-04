@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	if logger, err := helpers.InitLogger(); err != nil {
+	if logger, err := helpers.InitLogger("waka_log"); err != nil {
 		panic(err)
 	} else {
 		Logger = logger
