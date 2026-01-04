@@ -33,8 +33,6 @@ type WakaHeartbeat struct {
 	Entity           string    `bson:"entity" json:"entity"`
 	IsWrite          bool      `bson:"is_write" json:"is_write"`
 	Language         string    `bson:"language" json:"language"`
-	LineAdditions    *int      `bson:"line_additions,omitempty" json:"line_additions,omitempty"`
-	LineDeletions    *int      `bson:"line_deletions,omitempty" json:"line_deletions,omitempty"`
 	LineNo           int       `bson:"lineno" json:"lineno"`
 	Lines            int       `bson:"lines" json:"lines"`
 	MachineNameID    string    `bson:"machine_name_id" json:"machine_name_id"`
@@ -43,4 +41,7 @@ type WakaHeartbeat struct {
 	Time             float64   `bson:"time" json:"time"` // Unix timestamp
 	Type             string    `bson:"type" json:"type"`
 	UserAgentID      string    `bson:"user_agent_id" json:"user_agent_id"`
+	AILineChanges    *int      `bson:"ai_line_changes,omitempty" json:"ai_line_changes,omitempty"`
+	HumanLineChanges *int      `bson:"human_line_changes,omitempty" json:"human_line_changes,omitempty"`
+	UserID           string    `bson:"user_id" json:"user_id"`
 }

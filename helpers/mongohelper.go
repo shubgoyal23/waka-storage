@@ -35,8 +35,8 @@ func MongoInit(uri string, dbName string) (f bool) {
 func MongoAddManyDoc(collection string, doc []interface{}) (f bool) {
 	f = false
 	client := MongoConn.Database(MongoDb).Collection(collection)
-
-	ints, err := client.InsertMany(context.TODO(), doc)
+	opts := options.InsertMany().SetOrdered(false)
+	ints, err := client.InsertMany(context.TODO(), doc, opts)
 	if err != nil {
 		Logger.Error("Failed to insert many documents", zap.Error(err))
 		return
