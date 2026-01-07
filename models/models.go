@@ -45,3 +45,17 @@ type WakaHeartbeat struct {
 	HumanLineChanges *int      `bson:"human_line_changes,omitempty" json:"human_line_changes,omitempty"`
 	UserID           string    `bson:"user_id" json:"user_id"`
 }
+
+type MachineResponse struct {
+	Data []Machine `bson:"data" json:"data"`
+}
+
+type Machine struct {
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Value      string    `json:"value"`
+	IP         string    `json:"ip"`
+	LastSeenAt time.Time `json:"last_seen_at"`
+	Timezone   string    `json:"timezone"`
+	CreatedAt  time.Time `json:"created_at"`
+}

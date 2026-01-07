@@ -55,6 +55,7 @@ func WakaDataFetch() {
 	Logger.Info("WakaDataFetch started", zap.String("date", formated_date), zap.String("time", time.Now().Format("2006-01-02 15:04:05")))
 	WakaDataFetchActivity(formated_date)
 	WakaDataFetchHeartbeat(formated_date)
+	WakaDataFetchMachineIds(1)
 }
 
 func WakaDataFetchActivity(formated_date string) {
@@ -96,5 +97,26 @@ func WakaDataFetchHeartbeat(formated_date string) {
 	}
 	if !MongoAddManyDoc("heartbeats", datainsert) {
 		Logger.Error(fmt.Sprintf("Failed to insert waka data for date: %s", formated_date))
+	}
+}
+
+func WakaDataFetchMachineIds(page int) {
+	defer func() {
+		if r := recover(); r != nil {
+			Logger.Error("WakaDataFetchMachineIds Crashed: ", zap.Any("error", r))
+		}
+	}()
+
+	data, err := FetchWakaDataMachineIds(page)
+	if err != nil {
+		Logger.Error("Failed to fetch waka data for machine ids", zap.Error(err))
+		return
+	}
+	datainsert := []interface{}{}
+	for _, v := range data.Data {
+		datainsert = append(datainsert, v)
+	}
+	if !MongoAddManyDoc("machine_names", datainsert) {
+		Logger.Error("Failed to insert waka data for machine ids")
 	}
 }

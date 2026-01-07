@@ -58,3 +58,24 @@ func FetchWakaDataHeartbeat(date string) (*models.HeartbeatResponse, error) {
 	}
 	return &result, nil
 }
+
+func FetchWakaDataMachineIds(page int) (*models.MachineResponse, error) {
+	client := &http.Client{}
+	url := fmt.Sprintf("%s/machine_names?page=%d", wakaBaseURL, page)
+	req, _ := http.NewRequest("GET", url, nil)
+
+	auth := base64.StdEncoding.EncodeToString([]byte(apiKey))
+	req.Header.Set("Authorization", "Basic "+auth)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result models.MachineResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
