@@ -18,31 +18,6 @@ func ScheduleWakaDataFetch() {
 	c := cron.New()
 	c.AddFunc("0 5 0 * * *", WakaDataFetch)
 	c.Start()
-
-	// // skip if last update is less than 24 hours
-	// skip := false
-	// var data bson.M
-	// MongoGetLastOneDoc("daily_logs", &data)
-	// if data != nil {
-	// 	date, ok := data["time"].(float64)
-	// 	if ok {
-	// 		lastUpdate := time.Unix(int64(date), 0)
-	// 		ct := time.Now().Add(-24 * time.Hour)
-	// 		if lastUpdate.Day() >= ct.Day() {
-	// 			skip = true
-	// 		}
-	// 	}
-	// }
-
-	// for {
-	// 	if !skip {
-	// 		formated_date := time.Now().Add(-24 * time.Hour).Format("2006-01-02")
-	// 		WakaDataFetchActivity(formated_date)
-	// 		WakaDataFetchHeartbeat(formated_date)
-	// 	}
-	// 	skip = false
-	// 	time.Sleep(24 * time.Hour)
-	// }
 }
 
 func WakaDataFetch() {
