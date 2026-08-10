@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
 )
 
@@ -31,6 +31,7 @@ func WakaDataFetch() {
 	WakaDataFetchActivity(formated_date)
 	WakaDataFetchHeartbeat(formated_date)
 	WakaDataFetchMachineIds(1)
+	Logger.Info("WakaDataFetch done", zap.String("date", formated_date), zap.String("time", time.Now().Format("2006-01-02 15:04:05")))
 }
 
 func WakaDataFetchActivity(formated_date string) {

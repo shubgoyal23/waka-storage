@@ -1,6 +1,17 @@
 services:
   app:
     build: .
+    container_name: waka-storage
     restart: unless-stopped
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD", "pgrep", "waka-storage"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
