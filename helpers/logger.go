@@ -3,6 +3,7 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/gomodule/redigo/redis"
 	"go.uber.org/zap"
@@ -49,9 +50,14 @@ func InitLogger(key string) (*zap.Logger, error) {
 		pool: RedigoConn,
 		key:  key,
 	}
-	core := newRedisCore(zapcore.AddSync(writer))
+
+	// Write to both Redis and stdout so docker logs works
+	redisSync := zapcore.AddSync(writer)
+	stdoutSync := zapcore.AddSync(os.Stdout)
+	multiSync := zapcore.NewMultiWriteSyncer(redisSync, stdoutSync)
+
+	core := newRedisCore(multiSync)
 	logger := zap.New(core, zap.AddCaller())
-	defer logger.Sync()
 	Logger = logger
 	return logger, nil
 }

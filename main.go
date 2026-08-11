@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	if logger, err := helpers.InitLogger("waka_log"); err != nil {
+	if logger, err := helpers.InitLogger("waka-worker-logs"); err != nil {
 		panic(err)
 	} else {
 		Logger = logger
@@ -32,6 +32,12 @@ func main() {
 	helpers.WakaInit(os.Getenv("WAKA_API_KEY"))
 
 	Logger.Info("Starting Server", zap.String("version", "2.0.0"))
+
+	if os.Getenv("RUN_NOW") == "true" {
+		Logger.Info("RUN_NOW flag set, running WakaDataFetch immediately")
+		go helpers.WakaDataFetch()
+	}
+
 	go helpers.ScheduleWakaDataFetch()
 	<-stop
 	Logger.Info("Shutting down Server")
