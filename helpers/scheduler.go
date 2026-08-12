@@ -16,8 +16,19 @@ func ScheduleWakaDataFetch() {
 	}()
 
 	c := cron.New()
-	c.AddFunc("0 5 0 * * *", WakaDataFetch)
+
+	_, err := c.AddFunc("* * * * *", func() {
+		fmt.Println("Cron triggered:", time.Now())
+	})
+
+	if err != nil {
+		fmt.Println("Failed to add cron:", err)
+		return
+	}
+
 	c.Start()
+
+	fmt.Println("Cron scheduler started")
 }
 
 func WakaDataFetch() {
