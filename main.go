@@ -16,11 +16,7 @@ func main() {
 
 	godotenv.Load()
 	var Logger *zap.Logger
-	if err := helpers.InitRediGo(os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PWD")); err != nil {
-		panic(err)
-	}
-
-	if logger, err := helpers.InitLogger("waka-worker-logs"); err != nil {
+	if logger, err := helpers.InitLogger(os.Getenv("UPSTASH_REDIS_REST_URL"), os.Getenv("UPSTASH_REDIS_REST_TOKEN"), "waka-worker-logs"); err != nil {
 		panic(err)
 	} else {
 		Logger = logger
@@ -29,7 +25,10 @@ func main() {
 	if f := helpers.MongoInit(os.Getenv("MONGODB_URI"), os.Getenv("MONGO_DB")); !f {
 		panic(f)
 	}
-	helpers.WakaInit(os.Getenv("WAKA_API_KEY"))
+	if os.Getenv("WAKA_ACCESS_TOKEN") == "" {
+		panic("WAKA_ACCESS_TOKEN is not set")
+	}
+	helpers.WakaInit(os.Getenv("WAKA_ACCESS_TOKEN"))
 
 	Logger.Info("Starting Server", zap.String("version", "2.0.0"))
 

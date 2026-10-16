@@ -1,80 +1,66 @@
 package helpers
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"time"
 	"waka-storage/models"
 )
 
 var (
-	apiKey      = ""
+	accessToken = ""
 	wakaBaseURL = "https://wakatime.com/api/v1/users/current"
+	httpClient  = &http.Client{Timeout: 60 * time.Second}
 )
 
-func WakaInit(str string) {
-	apiKey = str
+// WakaInit sets the OAuth access token used for reading data.
+// WakaTime API keys are write-only (plugins only), so reads need an OAuth token
+// with scopes read_heartbeats and read_stats.machines.
+func WakaInit(token string) {
+	accessToken = token
 }
 
-func FetchWakaDataActivity(date string) (*models.ActivityResponse, error) {
-	client := &http.Client{}
-	url := fmt.Sprintf("%s/durations?date=%s", wakaBaseURL, date)
-	req, _ := http.NewRequest("GET", url, nil)
-
-	auth := base64.StdEncoding.EncodeToString([]byte(apiKey))
-	req.Header.Set("Authorization", "Basic "+auth)
-
-	resp, err := client.Do(req)
+func wakaGet(path string, out interface{}) error {
+	req, err := http.NewRequest("GET", wakaBaseURL+path, nil)
 	if err != nil {
-		return nil, err
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return err
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
+		return fmt.Errorf("wakatime %s returned %d: %s", path, resp.StatusCode, body)
+	}
+	return json.NewDecoder(resp.Body).Decode(out)
+}
+
+func FetchWakaDataActivity(date string) (*models.ActivityResponse, error) {
 	var result models.ActivityResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := wakaGet(fmt.Sprintf("/durations?date=%s", date), &result); err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
 func FetchWakaDataHeartbeat(date string) (*models.HeartbeatResponse, error) {
-	client := &http.Client{}
-	url := fmt.Sprintf("%s/heartbeats?date=%s", wakaBaseURL, date)
-	req, _ := http.NewRequest("GET", url, nil)
-
-	auth := base64.StdEncoding.EncodeToString([]byte(apiKey))
-	req.Header.Set("Authorization", "Basic "+auth)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
 	var result models.HeartbeatResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := wakaGet(fmt.Sprintf("/heartbeats?date=%s", date), &result); err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
 func FetchWakaDataMachineIds(page int) (*models.MachineResponse, error) {
-	client := &http.Client{}
-	url := fmt.Sprintf("%s/machine_names?page=%d", wakaBaseURL, page)
-	req, _ := http.NewRequest("GET", url, nil)
-
-	auth := base64.StdEncoding.EncodeToString([]byte(apiKey))
-	req.Header.Set("Authorization", "Basic "+auth)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
 	var result models.MachineResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := wakaGet(fmt.Sprintf("/machine_names?page=%d", page), &result); err != nil {
 		return nil, err
 	}
 	return &result, nil

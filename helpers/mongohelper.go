@@ -3,9 +3,9 @@ package helpers
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.uber.org/zap"
 )
 
@@ -16,7 +16,7 @@ func MongoInit(uri string, dbName string) (f bool) {
 	f = false
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
-	client, err := mongo.Connect(context.TODO(), opts)
+	client, err := mongo.Connect(opts)
 	if err != nil {
 		Logger.Error("Failed to connect to MongoDB", zap.Error(err))
 		return

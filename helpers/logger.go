@@ -1,40 +1,72 @@
 package helpers
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
+	"strings"
+	"time"
 
-	"github.com/gomodule/redigo/redis"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 var Logger *zap.Logger
 
-// RedisWriter implements io.Writer and pushes logs to a Redis list
-type RedisWriter struct {
-	pool *redis.Pool
-	key  string
+// UpstashWriter implements io.Writer and pushes logs to an Upstash Redis list via the REST API
+type UpstashWriter struct {
+	url    string
+	token  string
+	key    string
+	client *http.Client
 }
 
-func (r *RedisWriter) Write(p []byte) (n int, err error) {
+// run a single redis command against the Upstash REST API
+func (u *UpstashWriter) do(args ...string) error {
+	body, err := json.Marshal(args)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", u.url, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+u.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := u.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	var res struct {
+		Error string `json:"error"`
+	}
+	json.NewDecoder(resp.Body).Decode(&res)
+	if resp.StatusCode != http.StatusOK || res.Error != "" {
+		return fmt.Errorf("upstash returned %d: %s", resp.StatusCode, res.Error)
+	}
+	return nil
+}
+
+func (u *UpstashWriter) Write(p []byte) (n int, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("RedisWriter Write Crashed: ", r)
+			fmt.Println("UpstashWriter Write Crashed: ", r)
 		}
 	}()
-	conn := r.pool.Get()
-	defer conn.Close()
-
-	_, err = conn.Do("LPUSH", r.key, p)
-	if err != nil {
+	if err := u.do("LPUSH", u.key, strings.TrimRight(string(p), "\n")); err != nil {
+		fmt.Println("UpstashWriter Write failed: ", err)
 		return 0, err
 	}
 	return len(p), nil
 }
 
-func newRedisCore(writer zapcore.WriteSyncer) zapcore.Core {
+func newCore(writer zapcore.WriteSyncer) zapcore.Core {
 	encoderCfg := zap.NewProductionEncoderConfig()
 	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
 
@@ -42,22 +74,27 @@ func newRedisCore(writer zapcore.WriteSyncer) zapcore.Core {
 	return zapcore.NewCore(jsonEncoder, writer, zapcore.InfoLevel)
 }
 
-func InitLogger(key string) (*zap.Logger, error) {
-	if RedigoConn == nil {
-		return nil, errors.New("RedigoConn is nil")
+// InitLogger logs to stdout and to the Upstash list `key`
+func InitLogger(restURL, token, key string) (*zap.Logger, error) {
+	if restURL == "" || token == "" {
+		return nil, errors.New("UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN is not set")
 	}
-	writer := &RedisWriter{
-		pool: RedigoConn,
-		key:  key,
+	writer := &UpstashWriter{
+		url:    strings.TrimRight(restURL, "/"),
+		token:  token,
+		key:    key,
+		client: &http.Client{Timeout: 10 * time.Second},
+	}
+	if err := writer.do("PING"); err != nil {
+		return nil, err
 	}
 
-	// Write to both Redis and stdout so docker logs works
-	redisSync := zapcore.AddSync(writer)
+	// Write to both Upstash and stdout so docker logs works
+	upstashSync := zapcore.AddSync(writer)
 	stdoutSync := zapcore.AddSync(os.Stdout)
-	multiSync := zapcore.NewMultiWriteSyncer(redisSync, stdoutSync)
+	multiSync := zapcore.NewMultiWriteSyncer(upstashSync, stdoutSync)
 
-	core := newRedisCore(multiSync)
-	logger := zap.New(core, zap.AddCaller())
+	logger := zap.New(newCore(multiSync), zap.AddCaller())
 	Logger = logger
 	return logger, nil
 }
