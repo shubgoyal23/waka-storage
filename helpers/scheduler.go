@@ -51,8 +51,10 @@ func WakaDataFetchActivity(formated_date string) {
 		Logger.Error(fmt.Sprintf("Failed to fetch waka data for date: %s", formated_date), zap.Error(err))
 		return
 	}
+	rules := LoadProjectRules()
 	datainsert := []interface{}{}
 	for _, v := range data.Data {
+		v.Project = ResolveProject(rules, v.Project)
 		datainsert = append(datainsert, v)
 	}
 	if !MongoAddManyDoc("daily_logs", datainsert) {
@@ -72,8 +74,10 @@ func WakaDataFetchHeartbeat(formated_date string) {
 		Logger.Error(fmt.Sprintf("Failed to fetch waka data for date: %s", formated_date), zap.Error(err))
 		return
 	}
+	rules := LoadProjectRules()
 	datainsert := []interface{}{}
 	for _, v := range data.Data {
+		v.Project = ResolveProject(rules, v.Project)
 		datainsert = append(datainsert, v)
 	}
 	if !MongoAddManyDoc("heartbeats", datainsert) {
