@@ -14,9 +14,13 @@ import (
 // rules to (behind REDIS_PREFIX). Each item is JSON: {"from":"old-name","to":"new-name"}.
 const ProjectReplaceKey = "project_replace"
 
-// RedisKey prepends the optional REDIS_PREFIX env var to a Redis key.
-func RedisKey(key string) string {
-	return os.Getenv("REDIS_PREFIX") + key
+// RedisKey returns "<REDIS_PREFIX>:<name>"; the prefix defaults to "waka".
+func RedisKey(name string) string {
+	prefix := os.Getenv("REDIS_PREFIX")
+	if prefix == "" {
+		prefix = "waka"
+	}
+	return prefix + ":" + name
 }
 
 type projectRule struct {

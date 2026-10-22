@@ -16,7 +16,7 @@ func main() {
 
 	godotenv.Load()
 	var Logger *zap.Logger
-	if logger, err := helpers.InitLogger(os.Getenv("UPSTASH_REDIS_REST_URL"), os.Getenv("UPSTASH_REDIS_REST_TOKEN"), "waka-worker-logs"); err != nil {
+	if logger, err := helpers.InitLogger(os.Getenv("UPSTASH_REDIS_REST_URL"), os.Getenv("UPSTASH_REDIS_REST_TOKEN"), helpers.RedisKey("worker-logs")); err != nil {
 		panic(err)
 	} else {
 		Logger = logger
