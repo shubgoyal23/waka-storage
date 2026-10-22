@@ -11,8 +11,13 @@ import (
 )
 
 // ProjectReplaceKey is the Redis list the dashboard pushes project rename
-// rules to. Each item is JSON: {"from":"old-name","to":"new-name"}.
-const ProjectReplaceKey = "waka:project_replace"
+// rules to (behind REDIS_PREFIX). Each item is JSON: {"from":"old-name","to":"new-name"}.
+const ProjectReplaceKey = "project_replace"
+
+// RedisKey prepends the optional REDIS_PREFIX env var to a Redis key.
+func RedisKey(key string) string {
+	return os.Getenv("REDIS_PREFIX") + key
+}
 
 type projectRule struct {
 	From string `json:"from"`
@@ -37,7 +42,7 @@ func LoadProjectRules() map[string]string {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	items, err := client.LRange(ctx, ProjectReplaceKey, 0, -1).Result()
+	items, err := client.LRange(ctx, RedisKey(ProjectReplaceKey), 0, -1).Result()
 	if err != nil {
 		Logger.Error("Failed to load project replace rules", zap.Error(err))
 		return rules
