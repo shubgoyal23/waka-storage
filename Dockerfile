@@ -22,4 +22,8 @@ COPY --from=builder /app/waka-storage .
 
 USER appuser
 
+# Background worker with no HTTP port, so check that the process is alive
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD pgrep waka-storage > /dev/null || exit 1
+
 CMD ["./waka-storage"]
