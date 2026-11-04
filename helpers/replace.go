@@ -14,13 +14,12 @@ import (
 // rules to (behind REDIS_PREFIX). Each item is JSON: {"from":"old-name","to":"new-name"}.
 const ProjectReplaceKey = "project_replace"
 
-// RedisKey returns "<REDIS_PREFIX>:<name>"; the prefix defaults to "waka".
+// RedisKey returns REDIS_PREFIX + name, exactly like the dashboard
+// (waka-dashboard/src/lib/redis.ts). The prefix carries its own separator,
+// e.g. REDIS_PREFIX="waka:" -> "waka:project_replace"; unset -> "project_replace".
+// Both apps must use the same REDIS_PREFIX or the worker won't see the rules.
 func RedisKey(name string) string {
-	prefix := os.Getenv("REDIS_PREFIX")
-	if prefix == "" {
-		prefix = "waka"
-	}
-	return prefix + ":" + name
+	return os.Getenv("REDIS_PREFIX") + name
 }
 
 type projectRule struct {
@@ -46,9 +45,10 @@ func LoadProjectRules() map[string]string {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	items, err := client.LRange(ctx, RedisKey(ProjectReplaceKey), 0, -1).Result()
+	key := RedisKey(ProjectReplaceKey)
+	items, err := client.LRange(ctx, key, 0, -1).Result()
 	if err != nil {
-		Logger.Error("Failed to load project replace rules", zap.Error(err))
+		Logger.Error("Failed to load project replace rules", zap.String("key", key), zap.Error(err))
 		return rules
 	}
 	// Rules are applied in list order, so a later rule wins and chains
@@ -59,6 +59,7 @@ func LoadProjectRules() map[string]string {
 			rules[r.From] = r.To
 		}
 	}
+	Logger.Info("Loaded project replace rules", zap.String("key", key), zap.Int("count", len(rules)))
 	return rules
 }
 
